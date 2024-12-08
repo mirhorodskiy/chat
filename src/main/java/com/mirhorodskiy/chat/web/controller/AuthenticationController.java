@@ -2,22 +2,23 @@ package com.mirhorodskiy.chat.web.controller;
 
 import com.mirhorodskiy.chat.model.dto.AuthenticationRequest;
 import com.mirhorodskiy.chat.model.dto.SignUpDto;
+import com.mirhorodskiy.chat.model.entity.User;
 import com.mirhorodskiy.chat.model.enums.Role;
+import com.mirhorodskiy.chat.model.repository.UserRepository;
 import com.mirhorodskiy.chat.web.error.AuthenticationException;
 import com.mirhorodskiy.chat.web.service.AuthenticationService;
+import com.mirhorodskiy.chat.web.service.EmailService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,9 +34,15 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final EmailService emailService;
 
-    public AuthenticationController(AuthenticationService authenticationService) {
+    private final UserRepository userRepository;
+
+
+    public AuthenticationController(AuthenticationService authenticationService, EmailService emailService, UserRepository userRepository) {
         this.authenticationService = authenticationService;
+        this.emailService = emailService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/register")
@@ -95,5 +102,31 @@ public class AuthenticationController {
         response.put("valid", isValid);
         response.put("status", HttpStatus.OK.toString());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/send-test-email")
+    public String sendTestEmail() {
+        String toEmail = "mirhorodskiy@gmail.com";
+        try {
+            emailService.sendTestEmail(toEmail);
+            return "Test email sent successfully to " + toEmail;
+        } catch (Exception e) {
+            return "Failed to send test email: " + e.getMessage();
+        }
+    }
+
+    @PostMapping("/reg-admin")
+    public ResponseEntity<String> createAdmin() {
+        String adminEmail = "admin@example.com";
+        String adminPassword = "admin";
+
+        // Перевірка чи існує адміністратор
+        if (userRepository.existsByEmail(adminEmail)) {
+            return ResponseEntity.badRequest().body("Адміністратор вже існує.");
+        }
+
+        authenticationService.createAdmin();
+
+        return ResponseEntity.ok("Адміністратор створений: admin@example.com / Пароль: admin");
     }
 }

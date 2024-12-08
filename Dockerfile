@@ -1,14 +1,24 @@
-# Використовуємо офіційний образ OpenJDK
-FROM openjdk:16-jdk-alpine
+# Етап 1: Збірка проекту
+FROM maven:3.8.5-openjdk-17 AS build
 
-# Встановлюємо робочу директорію
 WORKDIR /app
 
-# Копіюємо JAR файл додатку до контейнера
-COPY target/chat-0.0.1-SNAPSHOT.jar app.jar
+# Копіюємо всі файли проекту до контейнера
+COPY . .
 
-# Відкриваємо порт для Spring Boot
+# Виконуємо збірку проекту
+RUN ./mvnw clean package -DskipTests
+
+# Етап 2: Запуск додатку
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# Копіюємо зібраний JAR-файл з попереднього етапу
+COPY --from=build /app/target/*.jar app.jar
+
+# Відкриваємо порт для програми
 EXPOSE 8080
 
-# Команда для запуску додатку
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Запускаємо програму
+CMD ["java", "-jar", "app.jar"]

@@ -11,6 +11,7 @@ import com.mirhorodskiy.chat.web.error.AuthenticationException;
 import com.mirhorodskiy.chat.web.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -113,4 +114,27 @@ public class AuthenticationService {
         }
         return jwtTokenProvider.validateToken(token);
     }
+
+    public void  createAdmin() {
+        String adminEmail = "admin@example.com";
+        String adminPassword = "admin";
+
+        User admin = User.builder()
+                .username("admin")
+                .password(passwordEncoder.encode(adminPassword))
+                .email(adminEmail)
+                .firstName("Admin")
+                .lastName("User")
+                .role(Role.ADMIN)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .position("Administrator")
+                .department(null)
+                .lastLogin(null)
+                .build();
+
+        userRepository.save(admin);
+    }
+
+
 }
