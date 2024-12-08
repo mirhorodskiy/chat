@@ -1,6 +1,7 @@
 package com.mirhorodskiy.chat.web.controller;
 
 import com.mirhorodskiy.chat.model.dto.AuthenticationRequest;
+import com.mirhorodskiy.chat.model.dto.LoginResponse;
 import com.mirhorodskiy.chat.model.dto.SignUpDto;
 import com.mirhorodskiy.chat.model.entity.User;
 import com.mirhorodskiy.chat.model.enums.Role;
@@ -57,17 +58,30 @@ public class AuthenticationController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+//    @PostMapping("/login")
+//    public ResponseEntity<?> authenticate(@RequestBody @Valid AuthenticationRequest request) {
+//        String token = authenticationService.login(request);
+//        if (token == null) {
+//            throw new AuthenticationException("Invalid username/password combination", HttpStatus.UNAUTHORIZED);
+//        }
+//
+//        Map<String, String> response = new HashMap<>();
+//        response.put("token", token);
+//        response.put("status", HttpStatus.OK.toString());
+//        return ResponseEntity.ok(response);
+//    }
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody @Valid AuthenticationRequest request) {
-        String token = authenticationService.login(request);
-        if (token == null) {
+        try {
+            // Виклик сервісу
+            LoginResponse loginResponse = authenticationService.login(request);
+
+            // Повертаємо токен і DTO
+            return ResponseEntity.ok(loginResponse);
+        } catch (AuthenticationException ex) {
             throw new AuthenticationException("Invalid username/password combination", HttpStatus.UNAUTHORIZED);
         }
-
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-        response.put("status", HttpStatus.OK.toString());
-        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")

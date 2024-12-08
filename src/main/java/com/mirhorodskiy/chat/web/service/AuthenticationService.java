@@ -1,7 +1,9 @@
 package com.mirhorodskiy.chat.web.service;
 
 import com.mirhorodskiy.chat.model.dto.AuthenticationRequest;
+import com.mirhorodskiy.chat.model.dto.LoginResponse;
 import com.mirhorodskiy.chat.model.dto.SignUpDto;
+import com.mirhorodskiy.chat.model.dto.UserDto;
 import com.mirhorodskiy.chat.model.entity.Department;
 import com.mirhorodskiy.chat.model.entity.User;
 import com.mirhorodskiy.chat.model.enums.Role;
@@ -85,7 +87,21 @@ public class AuthenticationService {
         return Role.USER;
     }
 
-    public String login(AuthenticationRequest request) {
+//    public String login(AuthenticationRequest request) {
+//        authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(
+//                        request.getEmail(),
+//                        request.getPassword()
+//                )
+//        );
+//
+//        User user = userRepository.findByEmail(request.getEmail())
+//                .orElseThrow(() -> new UsernameNotFoundException("User doesn't exists"));
+//        return jwtTokenProvider.createToken(user.getEmail(), user.getRole().name());
+//    }
+
+    public LoginResponse login(AuthenticationRequest request) {
+        // Аутентифікація
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -93,9 +109,26 @@ public class AuthenticationService {
                 )
         );
 
+        // Знаходимо користувача в базі
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("User doesn't exists"));
-        return jwtTokenProvider.createToken(user.getEmail(), user.getRole().name());
+                .orElseThrow(() -> new UsernameNotFoundException("User doesn't exist"));
+
+        // Створюємо токен
+        String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole().name());
+
+        // Створюємо DTO
+        UserDto userDto = new UserDto(
+                user.getId(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                (user.getDepartment() != null) ? user.getDepartment().getName() : "N/A",
+                user.getPosition(),
+                user.getRole().name()
+        );
+
+        return new LoginResponse(token, userDto);
     }
 
     public Role getRole(String token) {
