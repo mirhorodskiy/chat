@@ -116,11 +116,11 @@ public class AuthenticationService {
     }
 
     public void  createAdmin() {
-        String adminEmail = "admin@example.com";
+        String adminEmail = "testadmin1@example.com";
         String adminPassword = "admin";
 
         User admin = User.builder()
-                .username("admin")
+                .username("testadmin1")
                 .password(passwordEncoder.encode(adminPassword))
                 .email(adminEmail)
                 .firstName("Admin")

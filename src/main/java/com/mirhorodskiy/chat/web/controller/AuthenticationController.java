@@ -117,16 +117,9 @@ public class AuthenticationController {
 
     @PostMapping("/reg-admin")
     public ResponseEntity<String> createAdmin() {
-        String adminEmail = "admin@example.com";
-        String adminPassword = "admin";
-
-        // Перевірка чи існує адміністратор
-        if (userRepository.existsByEmail(adminEmail)) {
-            return ResponseEntity.badRequest().body("Адміністратор вже існує.");
-        }
 
         authenticationService.createAdmin();
 
-        return ResponseEntity.ok("Адміністратор створений: admin@example.com / Пароль: admin");
+        return ResponseEntity.ok("Адміністратор створений");
     }
 }
