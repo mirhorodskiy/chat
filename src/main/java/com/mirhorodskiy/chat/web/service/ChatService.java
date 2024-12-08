@@ -71,4 +71,33 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
+    public ChatDto getChatById(Long chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new RuntimeException("Chat not found"));
+
+        List<Long> participantIds = chat.getParticipants().stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+
+        return new ChatDto(chat.getId(), chat.getName(), chat.getProject().getId(), participantIds);
+    }
+
+    public List<ChatDto> getAllChats() {
+        List<Chat> chats = chatRepository.findAll();
+
+        return chats.stream().map(chat -> {
+            List<Long> participantIds = chat.getParticipants().stream()
+                    .map(User::getId)
+                    .collect(Collectors.toList());
+
+            return new ChatDto(
+                    chat.getId(),
+                    chat.getName(),
+                    chat.getProject().getId(),
+                    participantIds
+            );
+        }).collect(Collectors.toList());
+    }
+
+
 }

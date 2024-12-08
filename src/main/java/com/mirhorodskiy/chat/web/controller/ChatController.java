@@ -67,5 +67,18 @@ public class ChatController {
         ChatDto createdChat = chatService.createChat(projectId, chatDto);
         return ResponseEntity.ok(createdChat);
     }
+
+    @GetMapping("/{chatId}")
+    public ResponseEntity<ChatDto> getChatById(@PathVariable Long chatId) {
+        ChatDto chatDto = chatService.getChatById(chatId);
+        return ResponseEntity.ok(chatDto);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ChatDto>> getAllChats() {
+        List<ChatDto> chats = chatService.getAllChats();
+        return ResponseEntity.ok(chats);
+    }
+
 }
 
