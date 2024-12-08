@@ -9,6 +9,7 @@ import com.mirhorodskiy.chat.model.entity.User;
 import com.mirhorodskiy.chat.model.repository.ChatRepository;
 import com.mirhorodskiy.chat.model.repository.MessageRepository;
 import com.mirhorodskiy.chat.model.repository.ProjectRepository;
+import com.mirhorodskiy.chat.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,28 +22,39 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final ProjectRepository projectRepository;
     private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ChatService(ChatRepository chatRepository, ProjectRepository projectRepository, MessageRepository messageRepository) {
+    public ChatService(ChatRepository chatRepository, ProjectRepository projectRepository, MessageRepository messageRepository, UserRepository userRepository) {
         this.chatRepository = chatRepository;
         this.projectRepository = projectRepository;
         this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
     }
 
     // Створення чату
     public ChatDto createChat(Long projectId, ChatDto chatDto) {
-        // Перевірка чи існує проект за переданим ID
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        // Створення нового чату
         Chat chat = new Chat();
         chat.setName(chatDto.getName());
         chat.setProject(project);
+
+        // Додаємо учасників, якщо вони передані
+        if (chatDto.getParticipantIds() != null) {
+            List<User> participants = userRepository.findAllById(chatDto.getParticipantIds());
+            chat.setParticipants(participants);
+        }
+
         chatRepository.save(chat);
 
-        // Повернення даних чату
-        return new ChatDto(chat.getId(), chat.getName(), chat.getProject().getId());
+        // Повертаємо ChatDto із оновленим списком учасників
+        List<Long> participantIds = chat.getParticipants().stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+
+        return new ChatDto(chat.getId(), chat.getName(), chat.getProject().getId(), participantIds);
     }
 
     // Отримання всіх повідомлень чату
@@ -58,6 +70,5 @@ public class ChatService {
                 ))
                 .collect(Collectors.toList());
     }
-
 
 }

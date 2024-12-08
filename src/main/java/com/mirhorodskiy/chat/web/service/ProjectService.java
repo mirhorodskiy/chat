@@ -31,21 +31,18 @@ public class ProjectService {
 
     // Створення проекту
     public ProjectDto createProject(ProjectDto projectDto) {
-        Optional<User> manager = userRepository.findById(projectDto.getManagerId());
-        Optional<Department> department = departmentRepository.findById(projectDto.getDepartmentId());
+        User manager = userRepository.findById(projectDto.getManagerId())
+                .orElseThrow(() -> new IllegalArgumentException("Manager not found"));
 
-        if (manager.isEmpty()) {
-            throw new IllegalArgumentException("Manager not found");
-        }
-
-        if (department.isEmpty()) {
-            throw new IllegalArgumentException("Department not found");
+        Department department = manager.getDepartment();
+        if (department == null) {
+            throw new IllegalArgumentException("Manager is not assigned to a department");
         }
 
         Project project = Project.builder()
                 .name(projectDto.getName())
-                .department(department.get())
-                .manager(manager.get())
+                .department(department) // Департамент із менеджера
+                .manager(manager)
                 .build();
 
         Project savedProject = projectRepository.save(project);

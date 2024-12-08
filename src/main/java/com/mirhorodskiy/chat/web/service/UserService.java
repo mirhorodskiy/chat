@@ -6,6 +6,9 @@ import com.mirhorodskiy.chat.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class UserService {
 
@@ -26,6 +29,27 @@ public class UserService {
                 user.getLastName(),
                 user.getEmail(),
                 user.getDepartment().getName(),
+                user.getPosition(),
+                user.getRole().name()
+        );
+    }
+
+    public List<UserDto> getAllUsers() {
+        List<User> users = userRepository.findAll();
+
+        return users.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private UserDto convertToDto(User user) {
+        return new UserDto(
+                user.getId(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getDepartment() != null ? user.getDepartment().getName() : null,
                 user.getPosition(),
                 user.getRole().name()
         );
