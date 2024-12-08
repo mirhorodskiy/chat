@@ -80,5 +80,11 @@ public class ChatController {
         return ResponseEntity.ok(chats);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ChatDto>> getChatsByUserId(@PathVariable Long userId) {
+        List<ChatDto> chats = chatService.getChatsByUserId(userId);
+        return ResponseEntity.ok(chats);
+    }
+
 }
 

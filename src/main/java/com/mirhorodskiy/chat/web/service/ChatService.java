@@ -99,5 +99,22 @@ public class ChatService {
         }).collect(Collectors.toList());
     }
 
+    public List<ChatDto> getChatsByUserId(Long userId) {
+        List<Chat> chats = chatRepository.findAllByUserId(userId);
+
+        return chats.stream().map(chat -> {
+            List<Long> participantIds = chat.getParticipants().stream()
+                    .map(User::getId)
+                    .collect(Collectors.toList());
+
+            return new ChatDto(
+                    chat.getId(),
+                    chat.getName(),
+                    chat.getProject().getId(),
+                    participantIds
+            );
+        }).collect(Collectors.toList());
+    }
+
 
 }
