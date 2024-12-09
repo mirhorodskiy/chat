@@ -57,10 +57,11 @@ public class ChatController {
     }
 
     @PostMapping("/message")
-    public ResponseEntity<Void> receiveMessageFromExternalApi(@RequestBody MessageDto messageDto) {
-        messageService.saveMessage(messageDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<MessageDto> receiveMessageFromExternalApi(@RequestBody MessageDto messageDto) {
+        MessageDto savedMessage = messageService.saveMessage(messageDto);
+        return ResponseEntity.ok(savedMessage);
     }
+
 
     @PostMapping("/{projectId}/create")
     public ResponseEntity<ChatDto> createChat(@PathVariable Long projectId, @RequestBody ChatDto chatDto) {

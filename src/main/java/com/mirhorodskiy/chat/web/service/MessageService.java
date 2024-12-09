@@ -22,7 +22,7 @@ public class MessageService {
     @Autowired
     private ChatRepository chatRepository;
 
-    public void saveMessage(MessageDto messageDto) {
+    public MessageDto saveMessage(MessageDto messageDto) {
         // Знаходимо користувача за senderId
         User sender = userRepository.findById(messageDto.getSenderId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -39,7 +39,13 @@ public class MessageService {
         message.setTimestamp(messageDto.getCreatedAt());
 
         // Зберігаємо повідомлення в базі даних
-        messageRepository.save(message);
+        Message savedMessage = messageRepository.save(message);
+        return new MessageDto(
+                savedMessage.getChat().getId(),
+                savedMessage.getUser().getId(),
+                savedMessage.getText(),
+                savedMessage.getTimestamp()
+        );
     }
 }
 
