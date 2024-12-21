@@ -65,6 +65,8 @@ public class ChatService {
                 .map(message -> new MessageDto(
                         message.getChat().getId(),
                         message.getUser().getId(),
+                        message.getUser().getFirstName(), // Додано
+                        message.getUser().getLastName(),  // Додано
                         message.getText(),
                         message.getTimestamp()
                 ))

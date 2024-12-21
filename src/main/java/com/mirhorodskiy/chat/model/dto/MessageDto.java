@@ -13,6 +13,8 @@ public class MessageDto {
 
     private Long chatId;
     private Long senderId;
+    private String firstName;
+    private String lastName;
     private String text;
     private LocalDateTime createdAt;
 }
